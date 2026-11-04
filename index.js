@@ -117,17 +117,13 @@ export function apply(ctx) {
 
     for (const record of sessionCache.values()) {
       if (record.windowStart !== window.startDate) continue;
-      if (record.days === null) {
+      if (record.cells === null) {
         failedCached += 1;
         continue;
       }
       counted += 1;
-      if (record.days.length === 0) continue;
-      const from = Math.max(fromIndex, record.dayOffset);
-      const to = Math.min(toIndex, record.dayOffset + record.days.length - 1);
-      for (let index = from; index <= to; index += 1) {
-        const source = record.days[index - record.dayOffset];
-        if (source === undefined) continue;
+      for (const [index, source] of record.cells) {
+        if (index < fromIndex || index > toIndex) continue;
         const target = rows[index - fromIndex];
         for (let field = 0; field < FIELDS; field += 1) target[field] += source[field];
       }
@@ -295,34 +291,31 @@ export function apply(ctx) {
       return;
     }
 
-    let days = null;
+    let folded = null;
     try {
       if (persistence) {
-        days = await foldHandle(persistence, item, window);
+        folded = await foldHandle(persistence, item, window);
       } else if (query) {
         const records = await query.listEvents(item.id);
-        days = foldRecords(records, item.header, window);
+        folded = foldRecords(records, item.header, window);
       } else {
-        days = foldHeaderOnly(item.header, window);
+        folded = foldHeaderOnly(item.header, window);
       }
     } catch (error) {
       sessionCache.set(key, {
         windowStart: window.startDate,
         revision: item.revision,
-        dayOffset: 0,
-        days: null,
+        cells: null,
         error: error instanceof Error ? error.message : String(error),
       });
       scan.failed += 1;
       return;
     }
 
-    const offset = days.offset;
     sessionCache.set(key, {
       windowStart: window.startDate,
       revision: item.revision,
-      dayOffset: offset,
-      days: days.rows,
+      cells: folded.cells,
       error: null,
     });
     pruneCache(key);
@@ -345,15 +338,15 @@ export function apply(ctx) {
    * @param window - bucketing window.
    */
   function foldRecords(records, header, window) {
-    const { rows, offset } = blankRows(window);
+    const { cells, offset } = blankRows();
     const minutes = new Set();
     for (const record of records) {
       if (!record || typeof record.time !== 'number') continue;
-      accumulate(rows, offset, window, minutes, record.type, record.time, record.data);
+      accumulate(cells, offset, window, minutes, record.type, record.time, record.data);
     }
-    finalizeMinutes(rows, offset, minutes);
-    countSession(rows, offset, window, header);
-    return { rows, offset };
+    finalizeMinutes(cells, offset, minutes);
+    countSession(cells, offset, window, header);
+    return { cells, offset };
   }
 
   /**
@@ -364,7 +357,7 @@ export function apply(ctx) {
    * @param window - bucketing window.
    */
   async function foldHandle(persistence, item, window) {
-    const { rows, offset } = blankRows(window);
+    const { cells, offset } = blankRows();
     const minutes = new Set();
     const handle = await persistence.open(item.id, 'read');
     try {
@@ -375,7 +368,7 @@ export function apply(ctx) {
         if (events.length === 0) break;
         for (const event of events) {
           if (!event || typeof event.time !== 'number') continue;
-          accumulate(rows, offset, window, minutes, event.type, event.time, event.data);
+          accumulate(cells, offset, window, minutes, event.type, event.time, event.data);
         }
         cursor += events.length;
         if (events.length < READ_CHUNK) break;
@@ -383,23 +376,34 @@ export function apply(ctx) {
     } finally {
       await handle.close();
     }
-    finalizeMinutes(rows, offset, minutes);
-    countSession(rows, offset, window, item.header);
-    return { rows, offset };
+    finalizeMinutes(cells, offset, minutes);
+    countSession(cells, offset, window, item.header);
+    return { cells, offset };
   }
 
   /** Count only the session creation day when logs are unavailable. */
   function foldHeaderOnly(header, window) {
-    const { rows, offset } = blankRows(window);
-    countSession(rows, offset, window, header);
-    return { rows, offset };
+    const { cells, offset } = blankRows();
+    countSession(cells, offset, window, header);
+    return { cells, offset };
   }
 
-  /** Allocate a row per day in the window, indexed by absolute day. */
-  function blankRows(window) {
-    const offset = 0;
-    const rows = Array.from({ length: window.dates.length }, () => new Array(FIELDS).fill(0));
-    return { rows, offset };
+  /**
+   * Allocate a sparse day map. Only days with activity hold a row, so a large
+   * corpus does not allocate the full window for every Session.
+   */
+  function blankRows() {
+    return { cells: new Map(), offset: 0 };
+  }
+
+  /** Return (creating on demand) one day row. */
+  function dayCell(cells, index) {
+    let row = cells.get(index);
+    if (row === undefined) {
+      row = new Array(FIELDS).fill(0);
+      cells.set(index, row);
+    }
+    return row;
   }
 
   /**
@@ -412,11 +416,10 @@ export function apply(ctx) {
    * @param time - event wall clock in epoch milliseconds.
    * @param data - event payload, used for token usage only.
    */
-  function accumulate(rows, offset, window, minutes, type, time, data) {
+  function accumulate(cells, offset, window, minutes, type, time, data) {
     const index = dayIndex(window, time);
     if (index < 0) return;
-    const row = rows[index - offset];
-    if (row === undefined) return;
+    const row = dayCell(cells, index - offset);
     row[EVENTS] += 1;
     const minute = Math.floor((time - window.starts[index]) / 60_000);
     minutes.add(index * 1440 + Math.min(1439, Math.max(0, minute)));
@@ -438,22 +441,21 @@ export function apply(ctx) {
   }
 
   /** Convert a Session's unique minutes into per-day active-minute counts. */
-  function finalizeMinutes(rows, offset, minutes) {
+  function finalizeMinutes(cells, offset, minutes) {
     for (const key of minutes) {
       const index = Math.floor(key / 1440) - offset;
-      const row = rows[index];
+      const row = cells.get(index);
       if (row !== undefined) row[ACTIVE_MINUTES] += 1;
     }
   }
 
   /** Count a Session on the local day it was created. */
-  function countSession(rows, offset, window, header) {
+  function countSession(cells, offset, window, header) {
     const created = number(header?.createdAt);
     if (created <= 0) return;
     const index = dayIndex(window, created);
     if (index < 0) return;
-    const row = rows[index - offset];
-    if (row !== undefined) row[SESSIONS] += 1;
+    dayCell(cells, index - offset)[SESSIONS] += 1;
   }
 
   /**

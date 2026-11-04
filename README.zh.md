@@ -12,6 +12,8 @@
 
 [观看 66 秒介绍视频](docs/dsh-activity-heatmap-intro.mp4)（MP4，1080p，英文旁白，日文字幕）· [日文字幕](docs/dsh-activity-heatmap-intro.ja.srt) · 演示为虚构数据
 
+日语内容、英语字幕版：[无旁白](docs/dsh-activity-heatmap-intro-ja-silent.mp4) · [日语 AI 旁白](docs/dsh-activity-heatmap-intro-ja.mp4)（Keita，Edge Neural TTS）。
+
 ## 安装
 
 交给智能体（推荐）：让 DeepSeek Harness 调用 `plugin_manager`，参数

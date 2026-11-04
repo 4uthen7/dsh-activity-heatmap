@@ -8,6 +8,7 @@ third-party audio.
 from __future__ import annotations
 
 import math
+import os
 import subprocess
 import wave
 from pathlib import Path
@@ -320,11 +321,25 @@ for start in (5.9, 12.4, 18.9, 25.1, 31.7, 37.9, 45.7, 53.6):
 bell(49.55, 1046.5, 0.9)
 bell(58.9, 880, 0.7)
 
+# Soft key clicks under the install prompt typing.
+for i in range(80):
+    t0 = 47.3 + i / 42.0
+    if t0 > 49.6:
+        break
+    n = int(0.018 * SR)
+    tt = np.arange(n) / SR
+    click = (RNG.normal(0, 1, n) * np.exp(-tt * 320) * 0.5
+             + np.sin(2 * np.pi * 1900 * tt) * np.exp(-tt * 220) * 0.25)
+    add(fx[:, 0], click, t0, 0.28)
+    add(fx[:, 1], click, t0 + 0.003, 0.24)
+
 # --------------------------------------------------------------------------
-# Voice-over
+# Voice-over / variants
 # --------------------------------------------------------------------------
 
-LINES = [
+MODE = os.environ.get("AUDIO_MODE", "en")
+
+EN_LINES = [
     (0.6, "Every day you build leaves a trace."),
     (6.6, "Your session logs already know. One cell per day, counted locally."),
     (13.2, "Seven shapes. Square, round, hexagon, star, or your own SVG path."),
@@ -336,62 +351,108 @@ LINES = [
     (54.8, "dsh-activity-heatmap. See how much you actually build."),
 ]
 
-vo_dir = HERE / "vo"
-vo_dir.mkdir(exist_ok=True)
+JA_LINES = [
+    (0.6, "毎日の開発を、ひとマスずつ。"),
+    (6.6, "セッションログには、もう答えがあります。一日一マスで、活動量が見える。"),
+    (13.2, "四角、丸、六角形、星。SVGパスで、好きな形に。"),
+    (19.8, "五つのパレットと、自由な色。濃さは四段階。"),
+    (25.9, "一年、月別、直近の週。見たい形で。"),
+    (32.5, "メッセージ、ツール、ターン、トークン、時間、セッション。指標を選べます。"),
+    (38.8, "サイドバーのパネル。フッターのウィジェット。メインの全画面。好きな場所に。"),
+    (46.6, "導入は、リンクを貼ってお願いするだけ。Pluginsページからも入れられます。"),
+    (54.8, "dsh-activity-heatmap。あなたの毎日を、ひとマスずつ。"),
+]
+
+# Edge Neural (ja-JP-KeitaNeural), pre-generated into video/vo-edge/.
+# Shorter metrics line; shapes line starts on the cut.
+JA_EDGE_LINES = [
+    (0.6, "毎日の開発を、ひとマスずつ。"),
+    (6.6, "セッションログには、もう答えがあります。一日一マスで、活動量が見える。"),
+    (13.0, "四角、丸、六角形、星。SVGパスで、好きな形に。"),
+    (19.8, "五つのパレットと、自由な色。濃さは四段階。"),
+    (25.9, "一年、月別、直近の週。見たい形で。"),
+    (32.5, "メッセージ、ツール、ターン、トークン、時間、セッション。"),
+    (38.8, "サイドバーのパネル。フッターのウィジェット。メインの全画面。好きな場所に。"),
+    (46.6, "導入は、リンクを貼ってお願いするだけ。Pluginsページからも入れられます。"),
+    (54.8, "dsh-activity-heatmap。あなたの毎日を、ひとマスずつ。"),
+]
+
+if MODE == "instrumental":
+    LINES = []
+    VOICE = None
+    RATE = None
+    VO_DIR = None
+elif MODE == "ja-edge":
+    LINES = JA_EDGE_LINES
+    VOICE = None
+    RATE = None
+    VO_DIR = HERE / "vo-edge"
+elif MODE == "ja":
+    LINES = JA_LINES
+    VOICE = "Kyoko"
+    RATE = "170"
+    VO_DIR = HERE / "vo-ja"
+else:
+    LINES = EN_LINES
+    VOICE = "Samantha"
+    RATE = "175"
+    VO_DIR = HERE / "vo"
+
 vo = np.zeros(N)
+vo_wet = np.zeros((N, 2))
+duck_env = np.zeros(N)
 
-for index, (start, text) in enumerate(LINES):
-    aiff = vo_dir / f"line{index}.aiff"
-    wav = vo_dir / f"line{index}.wav"
-    if not aiff.exists():
-        subprocess.run(["say", "-v", "Samantha", "-r", "175", "-o", str(aiff), text], check=True)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(aiff), "-ar", str(SR), "-ac", "1", str(wav)], check=True)
-    with wave.open(str(wav), "rb") as fh:
-        samples = np.frombuffer(fh.readframes(fh.getnframes()), dtype=np.int16).astype(np.float64) / 32768
-    # Trim silence.
-    threshold = 0.004
-    active = np.where(np.abs(samples) > threshold)[0]
-    if len(active):
-        samples = samples[max(0, active[0] - int(0.02 * SR)): min(len(samples), active[-1] + int(0.03 * SR))]
-    # Gentle compression and consistent level.
-    window = int(0.02 * SR)
-    if len(samples) > window:
-        energy = np.sqrt(np.convolve(samples ** 2, np.ones(window) / window, mode="same"))
-        gain = np.where(energy > 0.08, (0.08 / np.maximum(energy, 1e-6)) ** 0.55, 1.0)
-        samples = samples * np.clip(gain, 0.4, 1.6)
-    samples = normalize(samples, 0.72)
-    samples = fft_filter(samples, high=80, low=12000)
-    fade = int(0.012 * SR)
-    if len(samples) > fade * 2:
-        samples[:fade] *= np.linspace(0, 1, fade)
-        samples[-fade:] *= np.linspace(1, 0, fade)
-    i = int(start * SR)
-    j = min(N, i + len(samples))
-    vo[i:j] += samples[: j - i]
+if LINES:
+    VO_DIR.mkdir(exist_ok=True)
+    for index, (start, text) in enumerate(LINES):
+        wav = VO_DIR / f"line{index}.wav"
+        if VOICE is not None:
+            aiff = VO_DIR / f"line{index}.aiff"
+            if not aiff.exists():
+                subprocess.run(["say", "-v", VOICE, "-r", RATE, "-o", str(aiff), text], check=True)
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(aiff), "-ar", str(SR), "-ac", "1", str(wav)], check=True)
+        with wave.open(str(wav), "rb") as fh:
+            samples = np.frombuffer(fh.readframes(fh.getnframes()), dtype=np.int16).astype(np.float64) / 32768
+        threshold = 0.004
+        active = np.where(np.abs(samples) > threshold)[0]
+        if len(active):
+            samples = samples[max(0, active[0] - int(0.02 * SR)): min(len(samples), active[-1] + int(0.03 * SR))]
+        window = int(0.02 * SR)
+        if len(samples) > window:
+            energy = np.sqrt(np.convolve(samples ** 2, np.ones(window) / window, mode="same"))
+            gain = np.where(energy > 0.08, (0.08 / np.maximum(energy, 1e-6)) ** 0.55, 1.0)
+            samples = samples * np.clip(gain, 0.4, 1.6)
+        samples = normalize(samples, 0.72)
+        samples = fft_filter(samples, high=80, low=12000)
+        fade = int(0.012 * SR)
+        if len(samples) > fade * 2:
+            samples[:fade] *= np.linspace(0, 1, fade)
+            samples[-fade:] *= np.linspace(1, 0, fade)
+        i = int(start * SR)
+        j = min(N, i + len(samples))
+        vo[i:j] += samples[: j - i]
 
-# Voice reverb and ducking.
-vo_stereo = np.column_stack([vo, vo])
-vo_wet = reverb(vo_stereo, 0.08)
-vo_env = np.abs(vo_stereo[:, 0])
-window = int(0.05 * SR)
-vo_env = np.convolve(vo_env, np.ones(window) / window, mode="same")
-vo_env = np.clip(vo_env / (np.max(vo_env) + 1e-9), 0, 1)
-# Fast attack, slow release.
-duck_env = np.empty_like(vo_env)
-value = 0.0
-for i in range(len(vo_env)):
-    target = vo_env[i]
-    value = target if target > value else value * 0.9993 + target * 0.0007
-    duck_env[i] = value
-music *= (1 - 0.55 * duck_env)[:, None] * 0.85
+    vo_stereo = np.column_stack([vo, vo])
+    vo_wet = reverb(vo_stereo, 0.08)
+    vo_env = np.abs(vo_stereo[:, 0])
+    window = int(0.05 * SR)
+    vo_env = np.convolve(vo_env, np.ones(window) / window, mode="same")
+    vo_env = np.clip(vo_env / (np.max(vo_env) + 1e-9), 0, 1)
+    duck_env = np.empty_like(vo_env)
+    value = 0.0
+    for i in range(len(vo_env)):
+        target = vo_env[i]
+        value = target if target > value else value * 0.9993 + target * 0.0007
+        duck_env[i] = value
+    music *= (1 - 0.55 * duck_env)[:, None] * 0.85
 
 mix = music * 0.9 + fx * 0.85 + vo_wet * 0.9
-# Master chain: high-pass, soft clip, normalize.
 mix = np.column_stack([
     fft_filter(mix[:, 0], high=28),
     fft_filter(mix[:, 1], high=28),
 ])
 mix = np.tanh(mix * 1.18) / 1.18
 mix = normalize(mix, 0.94)
-write_wav(HERE / "mix.wav", mix)
-print("wrote mix.wav", mix.shape, "peak", float(np.max(np.abs(mix))), "rms", rms(mix))
+out_name = os.environ.get("AUDIO_OUT", "mix.wav")
+write_wav(HERE / out_name, mix)
+print(f"wrote {out_name}", mix.shape, "peak", float(np.max(np.abs(mix))), "rms", rms(mix))

@@ -8,9 +8,11 @@ DeepSeek Harness の利用量を GitHub 風のヒートマップで表示する�
 
 外部へのネットワーク通信はありません。セッションの中身が外に出ることもありません。Host 側が返すのは集計値だけです。
 
-[![英語ナレーション・日本語字幕の66秒イントロ](docs/intro.gif)](docs/dsh-activity-heatmap-intro.mp4)
+[![日本語の内容・英語字幕の66秒イントロ](docs/intro-ja.gif)](docs/dsh-activity-heatmap-intro-ja-silent.mp4)
 
-[66秒のイントロを見る](docs/dsh-activity-heatmap-intro.mp4)（MP4・1080p・英語ナレーション・日本語字幕）· [日本語字幕](docs/dsh-activity-heatmap-intro.ja.srt) · 架空のデモデータ
+[66秒のイントロ（音声なし）](docs/dsh-activity-heatmap-intro-ja-silent.mp4) · [音声あり版（AI音声・Keita）](docs/dsh-activity-heatmap-intro-ja.mp4)（MP4・1080p・日本語の内容・英語字幕）· [英語字幕](docs/dsh-activity-heatmap-intro-ja.en.srt) · 架空のデモデータ
+
+日本語ナレーションは Microsoft Edge Neural TTS（Keita）を使用しています。
 
 ## 導入
 

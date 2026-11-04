@@ -1,5 +1,5 @@
 /**
- * Render video/index.html frame by frame through Chrome's DevTools Protocol.
+ * Render a video page (PAGE=video/index.html or video/index-ja.html) frame by frame through Chrome's DevTools Protocol.
  *
  * Usage:
  *   node video/render.mjs
@@ -24,24 +24,32 @@ const HTTP_PORT = Number(process.env.HTTP_PORT ?? 8740);
 const FPS = 30;
 const DURATION = 66.0;
 const OUT = process.env.FRAMES_DIR ?? '/tmp/dsh-activity-heatmap-frames';
+const PAGE = process.env.PAGE ?? 'video/index.html';
+const PROFILE = process.env.RENDER_PROFILE ?? `/tmp/dsh-activity-heatmap-chrome-${process.pid}`;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-fs.rmSync(OUT, { recursive: true, force: true });
-fs.mkdirSync(OUT, { recursive: true });
+const START_FRAME = Number(process.env.START_FRAME ?? 0);
+if (process.env.RESUME === '1') {
+  fs.mkdirSync(OUT, { recursive: true });
+} else {
+  fs.rmSync(OUT, { recursive: true, force: true });
+  fs.mkdirSync(OUT, { recursive: true });
+}
 
 const server = spawn('python3', ['-m', 'http.server', String(HTTP_PORT), '--bind', '127.0.0.1'], { cwd: ROOT, stdio: 'ignore' });
 const chrome = spawn(CHROME, [
   '--headless=new',
   `--remote-debugging-port=${PORT}`,
-  `--user-data-dir=/tmp/dsh-activity-heatmap-chrome`,
+  `--user-data-dir=${PROFILE}`,
   '--no-first-run', '--no-default-browser-check',
   '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=1920,1080',
-  `http://127.0.0.1:${HTTP_PORT}/video/index.html`,
+  `http://127.0.0.1:${HTTP_PORT}/${PAGE}`,
 ], { stdio: 'ignore' });
 
 const cleanup = () => {
   try { chrome.kill(); } catch {}
   try { server.kill(); } catch {}
+  try { fs.rmSync(PROFILE, { recursive: true, force: true }); } catch {}
 };
 process.on('SIGINT', () => { cleanup(); process.exit(130); });
 process.on('error', cleanup);
@@ -87,13 +95,13 @@ try {
 
   const total = Math.round(DURATION * FPS);
   const started = Date.now();
-  for (let index = 0; index < total; index += 1) {
+  for (let index = START_FRAME; index < total; index += 1) {
     await send('Runtime.evaluate', { expression: `window.renderAt(${index / FPS}); true` });
     await sleep(26);
     const shot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true, captureBeyondViewport: false });
     fs.writeFileSync(path.join(OUT, `f${String(index).padStart(5, '0')}.png`), Buffer.from(shot.result.data, 'base64'));
     if (index % 120 === 0) {
-      const rate = (index + 1) / ((Date.now() - started) / 1000);
+      const rate = (index + 1 - START_FRAME) / ((Date.now() - started) / 1000);
       console.log(`frame ${index}/${total} · ${rate.toFixed(1)} fps · eta ${Math.round((total - index) / rate)}s`);
     }
   }

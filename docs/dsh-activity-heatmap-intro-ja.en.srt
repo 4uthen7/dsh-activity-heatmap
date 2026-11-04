@@ -1,0 +1,35 @@
+1
+00:00:00,600 --> 00:00:03,700
+Every day you build, one cell at a time.
+
+2
+00:00:06,600 --> 00:00:12,900
+Your session logs already hold the answer. One cell per day, so you can see the activity.
+
+3
+00:00:13,200 --> 00:00:19,100
+Square, circle, hexagon, star. Shape it with your own SVG path.
+
+4
+00:00:19,800 --> 00:00:24,500
+Five palettes and any color you like. Four levels of intensity.
+
+5
+00:00:25,900 --> 00:00:30,700
+A year, by month, or the last few weeks. Pick the view you think in.
+
+6
+00:00:32,500 --> 00:00:38,400
+Messages, tools, turns, tokens, active time, sessions. Choose your measure.
+
+7
+00:00:38,800 --> 00:00:44,500
+A sidebar panel, a footer widget, the full page. Put it where you work.
+
+8
+00:00:46,600 --> 00:00:52,900
+Installing is one sentence. Paste the link and ask. Or add it from the Plugins page.
+
+9
+00:00:54,800 --> 00:01:00,900
+dsh-activity-heatmap. Your every day, one cell at a time.

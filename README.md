@@ -12,6 +12,8 @@ No outbound network requests. No session content leaves your machine. The plugin
 
 [Watch the 66-second intro](docs/dsh-activity-heatmap-intro.mp4) (MP4, 1080p, English voice-over, Japanese subtitles) · [Japanese subtitles](docs/dsh-activity-heatmap-intro.ja.srt) · fictional demo data
 
+Japanese-language version with English subtitles: [no voice](docs/dsh-activity-heatmap-intro-ja-silent.mp4) · [Japanese AI narration](docs/dsh-activity-heatmap-intro-ja.mp4) (Keita, Edge Neural TTS).
+
 ## Install
 
 Agent shortcut: call the `plugin_manager` tool with `action: "install_bundle"` and

@@ -4,3 +4,5 @@ node_modules/
 video/vo/
 video/*.wav
 video/frames/
+video/vo-ja/
+video/vo-edge/

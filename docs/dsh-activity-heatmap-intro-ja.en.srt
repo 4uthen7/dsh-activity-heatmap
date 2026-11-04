@@ -23,7 +23,7 @@ A year, by month, or the last few weeks. Pick the view you think in.
 Messages, tools, turns, tokens, active time, sessions. Choose your measure.
 
 7
-00:00:38,800 --> 00:00:44,500
+00:00:38,800 --> 00:00:45,900
 A sidebar panel, a footer widget, the full page. Put it where you work.
 
 8

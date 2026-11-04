@@ -1,14 +1,16 @@
 # dsh-activity-heatmap
 
+English | [日本語](README.ja.md) | [中文](README.zh.md)
+
 A GitHub-style activity heatmap for DeepSeek Harness.
 
-It counts how much you actually use the app — messages, tool calls, turns, tokens, active minutes, and sessions — straight from your own local session logs, then draws one cell per day. Square, rounded, round, hexagon, diamond, star, and your own SVG path. Five palettes plus per-level colors. Year, month, and rolling calendar layouts. Everything is configurable in the app.
+It counts how much you actually use the app — messages, tool calls, turns, tokens, active minutes, and sessions — straight from your own local session logs, then draws one cell per day. Square, rounded, round, hexagon, diamond, star, and your own SVG path. Five palettes plus per-level colors. Year, twelve-month, and rolling calendar layouts. Everything is configurable in the app.
 
 No outbound network requests. No session content leaves your machine. The plugin's Host half only returns counts.
 
-![Fictional demo: the Activity page with the sidebar widget](docs/demo-main.png)
+[![66-second intro with English voice-over and Japanese subtitles](docs/intro.gif)](docs/dsh-activity-heatmap-intro.mp4)
 
-*Fictional demo data. Not a real session log.*
+[Watch the 66-second intro](docs/dsh-activity-heatmap-intro.mp4) (MP4, 1080p, English voice-over, Japanese subtitles) · [Japanese subtitles](docs/dsh-activity-heatmap-intro.ja.srt) · fictional demo data
 
 ## Install
 
@@ -55,7 +57,7 @@ Pick any combination in **Settings → Activity → Appearance**.
 - **Composer strip** — an optional compact strip below the composer. Off by default.
 - **Settings → Activity** — the complete page with every option.
 
-The Workspaces header belongs to the shipped session browser, and DSH exposes no additive full-width seat directly above it; replacing that slot would remove the session list. The plugin uses the additive footer seat for the strip and the panel row for one-click access. [Sidebar detail](docs/demo-sidebar.png).
+The Workspaces header belongs to the shipped session browser, and DSH exposes no additive full-width seat directly above it; replacing that slot would remove the session list. The plugin uses the additive footer seat for the strip and the panel row for one-click access. [Sidebar detail](docs/demo-sidebar.png) · [Full page](docs/demo-main.png).
 
 The page is named by the active UI language: `Activity`, `アクティビティ`, or `活动`.
 
@@ -114,10 +116,12 @@ No build step: the package ships plain ESM for the Host and a plain-JavaScript C
 
 ```
 index.js            Host half: Session scan, per-day counters, stats route
-client.js           Browser half: settings store, heatmap, settings page, composer strip
+client.js           Browser half: stores, heatmap, sidebar widget, panel, settings page
 cordis.patch.yml    Bundle row
 locale/{en,ja,zh}.json   Plugin Manager title/description
 icon.svg            Plugin artwork
+video/              Motion-graphics source, original soundtrack, and render script
+docs/               Fictional demo HTML and screenshots
 ```
 
 Install a working checkout:
@@ -127,6 +131,14 @@ plugin_manager { action: "install_bundle", target: "/absolute/path/to/dsh-activi
 ```
 
 After editing `client.js`, reload the page. After editing `index.js`, toggle the row off and on (or restart) so the Host module is imported again.
+
+## Author
+
+<img src="docs/author.jpg" width="56" height="56" alt="高本">
+
+**高本** · [@4uthen7](https://github.com/4uthen7) · [SphinxGG.com](https://sphinxgg.com)
+
+Designed and built by 高本. MIT licensed.
 
 ## License
 

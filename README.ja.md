@@ -1,14 +1,16 @@
 # dsh-activity-heatmap
 
+[English](README.md) | 日本語 | [中文](README.zh.md)
+
 DeepSeek Harness の利用量を GitHub 風のヒートマップで表示するプラグインです。
 
 セッションログから、メッセージ数・ツール呼び出し・ターン・トークン・アクティブ時間・セッション数を日ごとに集計し、1日1マスで描きます。四角・角丸・丸・六角形・ひし形・星、そして自分で書いた SVG パスまで形を選べます。配色は5種類のプリセットとレベル別カラー。表示は1年・月別・直近の週から選べます。設定はすべてアプリ内で変更できます。
 
 外部へのネットワーク通信はありません。セッションの中身が外に出ることもありません。Host 側が返すのは集計値だけです。
 
-![アクティビティページとサイドバーウィジェットの架空デモ](docs/demo-main.png)
+[![英語ナレーション・日本語字幕の66秒イントロ](docs/intro.gif)](docs/dsh-activity-heatmap-intro.mp4)
 
-*架空のデモデータです。実際のセッションログではありません。*
+[66秒のイントロを見る](docs/dsh-activity-heatmap-intro.mp4)（MP4・1080p・英語ナレーション・日本語字幕）· [日本語字幕](docs/dsh-activity-heatmap-intro.ja.srt) · 架空のデモデータ
 
 ## 導入
 
@@ -48,7 +50,7 @@ https://github.com/4uthen7/dsh-activity-heatmap を DeepSeek Harness に導入�
 - **入力欄の帯** — 入力欄の下のコンパクトな帯。既定はオフ
 - **設定 → アクティビティ** — すべての設定がある完全なページ
 
-Workspaces の見出しは同梱のセッションブラウザが所有しており、その直上に追加できるフル幅スロットは DSH にありません。そのスロットを置き換えるとセッション一覧が消えるため、フル幅の帯は追加可能なサイドバー下部（Settings の上）に置き、Workspaces の上にはパネル行を追加しています。[サイドバーの拡大](docs/demo-sidebar.png)。
+Workspaces の見出しは同梱のセッションブラウザが所有しており、その直上に追加できるフル幅スロットは DSH にありません。そのスロットを置き換えるとセッション一覧が消えるため、フル幅の帯は追加可能なサイドバー下部（Settings の上）に置き、Workspaces の上にはパネル行を追加しています。[サイドバーの拡大](docs/demo-sidebar.png) · [全画面](docs/demo-main.png)。
 
 ページ名は UI の言語に追従します（`Activity` / `アクティビティ` / `活动`）。
 
@@ -105,10 +107,12 @@ Workspaces の見出しは同梱のセッションブラウザが所有してお
 
 ```
 index.js            Host: セッション走査、日別集計、stats ルート
-client.js           Client: 設定ストア、ヒートマップ、設定ページ、入力欄の帯
+client.js           Client: 設定ストア、ヒートマップ、サイドバー、パネル、設定ページ
 cordis.patch.yml    バンドルの行
 locale/{en,ja,zh}.json   Plugin Manager のタイトルと説明
 icon.svg            アイコン
+video/              モーショングラフィックのソース、オリジナル楽曲、レンダースクリプト
+docs/               架空デモのHTMLとスクリーンショット
 ```
 
 チェックアウトを導入する:
@@ -118,6 +122,14 @@ plugin_manager { action: "install_bundle", target: "/absolute/path/to/dsh-activi
 ```
 
 `client.js` を編集したらページを再読み込みしてください。`index.js` を編集したら行をオフ→オン（または再起動）して Host モジュールを読み直します。
+
+## 作者
+
+<img src="docs/author.jpg" width="56" height="56" alt="高本">
+
+**高本** · [@4uthen7](https://github.com/4uthen7) · [SphinxGG.com](https://sphinxgg.com)
+
+高本が設計・開発しました。MIT ライセンス。
 
 ## ライセンス
 

@@ -812,7 +812,7 @@ window.__ModuleLoader__.load({
       const blocks = groupMonths(days).slice(-12);
       const today = days[days.length - 1].date;
       return h('div', { className: 'ah-months' }, blocks.map((block) => {
-        const leading = weekdayOffset(block.start, config.weekStart);
+        const leading = weekdayOffset(`${block.key}-01`, config.weekStart);
         const cells = [];
         for (let index = 0; index < leading; index += 1) cells.push(null);
         for (const day of block.days) cells.push(day);

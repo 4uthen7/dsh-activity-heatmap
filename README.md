@@ -4,7 +4,7 @@ A GitHub-style activity heatmap for DeepSeek Harness.
 
 It counts how much you actually use the app — messages, tool calls, turns, tokens, active minutes, and sessions — straight from your own local session logs, then draws one cell per day. Square, rounded, round, hexagon, diamond, star, and your own SVG path. Five palettes plus per-level colors. Year, month, and rolling calendar layouts. Everything is configurable in the app.
 
-No network calls. No session content leaves your machine. The plugin's Host half only returns counts.
+No outbound network requests. No session content leaves your machine. The plugin's Host half only returns counts.
 
 ```
       Jan        Feb        Mar        Apr

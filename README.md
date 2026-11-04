@@ -10,9 +10,11 @@ No outbound network requests. No session content leaves your machine. The plugin
 
 [![66-second intro with English voice-over and Japanese subtitles](docs/intro.gif)](docs/dsh-activity-heatmap-intro.mp4)
 
-[Watch the 66-second intro](docs/dsh-activity-heatmap-intro.mp4) (MP4, 1080p, English voice-over, Japanese subtitles) · [Japanese subtitles](docs/dsh-activity-heatmap-intro.ja.srt) · fictional demo data
+[Watch the 66-second intro](docs/dsh-activity-heatmap-intro.mp4) (MP4, 1080p, English AI voice-over, Japanese subtitles) · [Japanese subtitles](docs/dsh-activity-heatmap-intro.ja.srt) · fictional demo data
 
 Japanese-language version with English subtitles: [no voice](docs/dsh-activity-heatmap-intro-ja-silent.mp4) · [Japanese AI narration](docs/dsh-activity-heatmap-intro-ja.mp4) (Keita, Edge Neural TTS).
+
+English narration uses Kokoro (am_michael, open-source neural TTS); Japanese narration uses Microsoft Edge Neural TTS (Keita).
 
 ## Install
 

@@ -10,9 +10,11 @@
 
 [![66 秒介绍视频：英文旁白、日文字幕](docs/intro.gif)](docs/dsh-activity-heatmap-intro.mp4)
 
-[观看 66 秒介绍视频](docs/dsh-activity-heatmap-intro.mp4)（MP4，1080p，英文旁白，日文字幕）· [日文字幕](docs/dsh-activity-heatmap-intro.ja.srt) · 演示为虚构数据
+[观看 66 秒介绍视频](docs/dsh-activity-heatmap-intro.mp4)（MP4，1080p，英文 AI 旁白，日文字幕）· [日文字幕](docs/dsh-activity-heatmap-intro.ja.srt) · 演示为虚构数据
 
 日语内容、英语字幕版：[无旁白](docs/dsh-activity-heatmap-intro-ja-silent.mp4) · [日语 AI 旁白](docs/dsh-activity-heatmap-intro-ja.mp4)（Keita，Edge Neural TTS）。
+
+英文旁白使用 Kokoro（am_michael），日文旁白使用 Microsoft Edge Neural TTS（Keita）。
 
 ## 安装
 

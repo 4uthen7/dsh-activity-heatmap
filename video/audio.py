@@ -382,6 +382,11 @@ if MODE == "instrumental":
     VOICE = None
     RATE = None
     VO_DIR = None
+elif MODE == "en-kokoro":
+    LINES = EN_LINES
+    VOICE = None
+    RATE = None
+    VO_DIR = HERE / "vo-kokoro"
 elif MODE == "ja-edge":
     LINES = JA_EDGE_LINES
     VOICE = None

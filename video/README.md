@@ -6,7 +6,7 @@ There are three cuts:
 
 | Cut | Page | On-screen | Subtitles | Audio | File |
 | --- | --- | --- | --- | --- | --- |
-| English | `video/index.html` | English | Japanese | English narration | `docs/dsh-activity-heatmap-intro.mp4` |
+| English | `video/index.html` | English | Japanese | Kokoro (am_michael) | `docs/dsh-activity-heatmap-intro.mp4` |
 | Japanese, voice | `video/index-ja.html` | Japanese | English | Keita (Edge Neural TTS) | `docs/dsh-activity-heatmap-intro-ja.mp4` |
 | Japanese, silent | `video/index-ja.html` | Japanese | English | music + sound effects | `docs/dsh-activity-heatmap-intro-ja-silent.mp4` |
 
@@ -15,6 +15,7 @@ video/index.html     English timeline
 video/index-ja.html  Japanese timeline, English subtitle cues
 video/audio.py       Music, sound design, voice-over mix
 video/voice_edge.py  Edge Neural TTS lines (Keita, Japanese male)
+video/voice_kokoro.py Kokoro lines (am_michael, English male)
 video/render.mjs     Chrome DevTools Protocol frame renderer (PAGE selects the cut)
 video/avatar.jpg     Author avatar used on the end card
 video/grain.png      Generated film grain
@@ -25,8 +26,12 @@ The app mock is `docs/demo.html` for the English cut and `docs/demo-ja.html` for
 ## Audio
 
 ```bash
-# English narration (Samantha, 175 wpm)
-AUDIO_MODE=en AUDIO_OUT=mix.wav python3 video/audio.py
+# English male narration: Kokoro, am_michael
+# pip install kokoro-onnx; download the model and voices first
+KOKORO_MODEL=/tmp/kokoro/kokoro-v1.0.onnx \
+KOKORO_VOICES=/tmp/kokoro/voices-v1.0.bin \
+  python3 video/voice_kokoro.py
+AUDIO_MODE=en-kokoro AUDIO_OUT=mix-en-kokoro.wav python3 video/audio.py
 
 # Japanese male narration: Edge Neural TTS, Keita, generated locally
 # pip install edge-tts
@@ -37,14 +42,14 @@ AUDIO_MODE=ja-edge AUDIO_OUT=mix-ja-edge.wav python3 video/audio.py
 AUDIO_MODE=instrumental AUDIO_OUT=mix-instrumental.wav python3 video/audio.py
 
 # Master each to -14 LUFS / -1.5 dBTP
-for n in "" "-ja-edge" "-instrumental"; do
+for n in "-en-kokoro" "-ja-edge" "-instrumental"; do
   ffmpeg -y -i "video/mix${n}.wav" \
     -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -ac 2 \
     "video/master${n}.wav"
 done
 ```
 
-Voice lines are cached in `video/vo/` (English), `video/vo-ja/` (optional Kyoko fallback), and `video/vo-edge/` (Keita); all are ignored by git.
+Voice lines are cached in `video/vo-kokoro/` (Kokoro), `video/vo-ja/` (optional Kyoko fallback), and `video/vo-edge/` (Keita); all are ignored by git.
 
 ## Frames
 
@@ -68,7 +73,7 @@ COMMON='-c:v libx264 -preset slow -crf 16 -pix_fmt yuv420p -profile:v high -leve
 
 # English content, Japanese subtitles, English voice
 ffmpeg -y -framerate 30 -i /tmp/dsh-activity-heatmap-frames/f%05d.png \
-  -i video/master.wav $COMMON \
+  -i video/master-en-kokoro.wav $COMMON \
   -metadata title="dsh-activity-heatmap — intro" \
   docs/dsh-activity-heatmap-intro.mp4
 

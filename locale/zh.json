@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "活动热力图",
+    "description": "以 GitHub 风格热力图显示你每天使用 DeepSeek Harness 的情况，支持方形、圆形、自定义形状、配色和日历布局。"
+  }
+}

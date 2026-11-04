@@ -16,6 +16,10 @@ Fri  ▪ ▪ ▪ ▪ ▫ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪
 
 ## Install
 
+Agent shortcut: call the `plugin_manager` tool with `action: "install_bundle"` and
+`target: "https://github.com/4uthen7/dsh-activity-heatmap"`, then verify that the
+`activity` settings section is active. Details in [AGENTS.md](AGENTS.md).
+
 ### Ask the agent (easiest)
 
 Open DeepSeek Harness, paste this into a session, and send:

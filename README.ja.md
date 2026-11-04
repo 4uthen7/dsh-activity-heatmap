@@ -16,6 +16,10 @@ DeepSeek Harness の利用量を GitHub 風のヒートマップで表示する�
 
 ## 導入
 
+エージェント向けの近道: `plugin_manager` ツールで `action: "install_bundle"`、
+`target: "https://github.com/4uthen7/dsh-activity-heatmap"` を実行し、`activity`
+セクションが有効になったことを確認します。詳しくは [AGENTS.md](AGENTS.md)。
+
 ### AI に頼む（いちばん簡単）
 
 DeepSeek Harness のセッションに以下を貼り付けて送るだけです。

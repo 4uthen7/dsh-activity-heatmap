@@ -50,7 +50,7 @@ The agent installs the bundle with the `plugin_manager` tool. Agent instructions
 
 Pick any combination in **Settings → Activity → Appearance**.
 
-- **Sidebar widget** — a full-width strip in the sidebar footer, above Settings. Click it to open the full heatmap. Choose 7–52 weeks.
+- **Sidebar widget** — a strip in the sidebar footer row above Settings. Click it to open the full heatmap. Choose 7–52 weeks.
 - **Sidebar panel** — an **Activity** row in the navigation list above Workspaces. It opens the full heatmap in the main area.
 - **Composer strip** — an optional compact strip below the composer. Off by default.
 - **Settings → Activity** — the complete page with every option.

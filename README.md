@@ -8,7 +8,7 @@ It counts how much you actually use the app — messages, tool calls, turns, tok
 
 No outbound network requests. No session content leaves your machine. The plugin's Host half only returns counts.
 
-[![66-second intro with English voice-over and Japanese subtitles](docs/intro.gif)](docs/dsh-activity-heatmap-intro.mp4)
+[![66-second intro with English AI voice-over and Japanese subtitles](docs/intro.gif)](docs/dsh-activity-heatmap-intro.mp4)
 
 [Watch the 66-second intro](docs/dsh-activity-heatmap-intro.mp4) (MP4, 1080p, English AI voice-over, Japanese subtitles) · [Japanese subtitles](docs/dsh-activity-heatmap-intro.ja.srt) · fictional demo data
 

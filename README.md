@@ -6,13 +6,9 @@ It counts how much you actually use the app — messages, tool calls, turns, tok
 
 No outbound network requests. No session content leaves your machine. The plugin's Host half only returns counts.
 
-```
-      Jan        Feb        Mar        Apr
-Mon  ▪ ▪ ▪ ▫ ▪ ▪ ▪ ▪ ▫ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪
-Wed  ▪ ▫ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▫ ▪ ▪ ▪ ▪ ▪ ▪
-Fri  ▪ ▪ ▪ ▪ ▫ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪
-                                     Less ▪▪▪▪ More
-```
+![Fictional demo: the Activity page with the sidebar widget](docs/demo-main.png)
+
+*Fictional demo data. Not a real session log.*
 
 ## Install
 
@@ -50,10 +46,16 @@ The agent installs the bundle with the `plugin_manager` tool. Agent instructions
 - DeepSeek Harness with the Web UI (Desktop or the `web` profile).
 - Any DSH version that ships the `sessionPersistence`, `sessionQuery`, and `webServer` services. The plugin degrades gracefully: if persistence is absent it counts Session creation days only.
 
-## Where to find it
+## Where it appears
 
-- **Settings → Activity** — the full heatmap, summary, and every option.
-- **Under the composer** — a compact rolling strip so you can see the last weeks at a glance. Turn it off in Settings → Activity → Appearance.
+Pick any combination in **Settings → Activity → Appearance**.
+
+- **Sidebar widget** — a full-width strip in the sidebar footer, above Settings. Click it to open the full heatmap. Choose 7–52 weeks.
+- **Sidebar panel** — an **Activity** row in the navigation list above Workspaces. It opens the full heatmap in the main area.
+- **Composer strip** — an optional compact strip below the composer. Off by default.
+- **Settings → Activity** — the complete page with every option.
+
+The Workspaces header belongs to the shipped session browser, and DSH exposes no additive full-width seat directly above it; replacing that slot would remove the session list. The plugin uses the additive footer seat for the strip and the panel row for one-click access. [Sidebar detail](docs/demo-sidebar.png).
 
 The page is named by the active UI language: `Activity`, `アクティビティ`, or `活动`.
 
@@ -88,7 +90,8 @@ All options are per browser (`localStorage`, key `dsh-activity-heatmap/settings/
 | Week starts on | Sunday, Monday | Monday |
 | Intensity | Linear, Log, Rank (quantile) | Linear |
 | Labels | Month labels, weekday labels, legend | On |
-| Composer strip | Show/hide, 7–52 weeks | On, 18 weeks |
+| Sidebar widget | Show/hide, 7–52 weeks | On, 22 weeks |
+| Composer strip | Show/hide | Off |
 
 A custom shape is an SVG path written for a `0 0 100 100` view box, for example `M50 4 L96 92 L4 92 Z`. Invalid path data is ignored and the square is used.
 

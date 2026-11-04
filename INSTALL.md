@@ -41,8 +41,9 @@ plugin_manager { action: "install_bundle", target: "/absolute/path/to/dsh-activi
 ## Verify
 
 - Settings shows an **Activity** entry between **Built-in plugins** and **Agent presets**.
+- The sidebar shows an **Activity** row above **Workspaces**, and a full-width Activity strip above **Settings**. Click either to open the full heatmap.
 - The page draws a calendar and a summary.
-- A compact strip appears under the composer on an existing session.
+- The optional composer strip is off by default; turn it on in Settings → Activity → Appearance.
 - The Host route answers counts:
 
 ```bash
@@ -55,7 +56,7 @@ The port is whatever the running Web UI uses; Desktop's is shown in the app sett
 
 | Symptom | Cause and fix |
 | --- | --- |
-| **Activity** is missing from Settings | The Client module did not load. Check **Plugins** → the bundle page for row status and diagnostics; reload the page; toggle the row off and on. |
+| **Activity** is missing from Settings or the sidebar | The Client module did not load. Check **Plugins** → the bundle page for row status and diagnostics; reload the page; toggle the row off and on. |
 | The page says it could not read activity | The Host route is absent. Confirm the bundle row is active. A profile without `webServer` cannot serve the page. |
 | Every cell is empty | The Session corpus is empty or lives under another profile. The plugin counts only the current profile's sessions. |
 | `application: restart-required` after installing | Restart DeepSeek Harness, then open Settings → Activity. |

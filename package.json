@@ -1,6 +1,6 @@
 {
   "name": "dsh-activity-heatmap",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "GitHub-style activity heatmap for DeepSeek Harness: daily usage counted from your local session logs, with square, round, and custom shapes, palettes, and calendar layouts.",
   "type": "module",
   "license": "MIT",
@@ -29,7 +29,9 @@
     "README.ja.md",
     "INSTALL.md",
     "AGENTS.md",
-    "LICENSE"
+    "LICENSE",
+    "docs/*.png",
+    "docs/demo.html"
   ],
   "dsh": {
     "bundle": {

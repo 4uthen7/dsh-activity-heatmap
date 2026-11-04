@@ -40,7 +40,9 @@ window.__ModuleLoader__.load({
       showMonthLabels: true,
       showWeekdayLabels: true,
       showLegend: true,
-      showDock: true,
+      showSidebar: true,
+      showDock: false,
+      sidebarWeeks: 22,
       dockWeeks: 18,
     });
 
@@ -89,7 +91,10 @@ window.__ModuleLoader__.load({
       'controls.weekdayLabels': 'Weekday labels',
       'controls.legend': 'Legend',
       'controls.display': 'Display',
-      'controls.dock': 'Compact strip under the composer',
+      'controls.dock': 'Composer strip',
+      'controls.placeSidebar': 'Sidebar widget',
+      'controls.sidebarWeeks': 'Sidebar weeks',
+      'sidebar.open': 'Open the full heatmap',
       'controls.reset': 'Reset to defaults',
       'metric.messages': 'Messages',
       'metric.activeMinutes': 'Active time',
@@ -165,7 +170,10 @@ window.__ModuleLoader__.load({
       'controls.weekdayLabels': '曜日ラベル',
       'controls.legend': '凡例',
       'controls.display': '表示',
-      'controls.dock': '入力欄の下にコンパクト表示',
+      'controls.dock': '入力欄の帯',
+      'controls.placeSidebar': 'サイドバーのウィジェット',
+      'controls.sidebarWeeks': 'サイドバーの週数',
+      'sidebar.open': 'ヒートマップを開く',
       'controls.reset': '初期設定に戻す',
       'metric.messages': 'メッセージ',
       'metric.activeMinutes': 'アクティブ時間',
@@ -241,7 +249,10 @@ window.__ModuleLoader__.load({
       'controls.weekdayLabels': '星期标签',
       'controls.legend': '图例',
       'controls.display': '显示',
-      'controls.dock': '在输入框下显示紧凑条',
+      'controls.dock': '输入框条',
+      'controls.placeSidebar': '侧边栏小组件',
+      'controls.sidebarWeeks': '侧边栏周数',
+      'sidebar.open': '打开完整热力图',
       'controls.reset': '恢复默认',
       'metric.messages': '消息',
       'metric.activeMinutes': '活跃时间',
@@ -337,7 +348,9 @@ window.__ModuleLoader__.load({
       out.showMonthLabels = input.showMonthLabels !== false;
       out.showWeekdayLabels = input.showWeekdayLabels !== false;
       out.showLegend = input.showLegend !== false;
-      out.showDock = input.showDock !== false;
+      out.showSidebar = input.showSidebar !== false;
+      out.showDock = input.showDock === true;
+      out.sidebarWeeks = clamp(Math.round(numberOr(input.sidebarWeeks, out.sidebarWeeks)), 7, 52);
 
       const palette = input.palette;
       if (palette === 'custom' && validColors(input.colors)) {
@@ -723,7 +736,7 @@ window.__ModuleLoader__.load({
     /* Chart                                                               */
     /* ------------------------------------------------------------------ */
 
-    function Chart({ days, config, levelOf, onHover }) {
+    function Chart({ days, config, levelOf, onHover, wide }) {
       const locale = runtime.localeId;
       if (days.length === 0) {
         return h('p', { className: 'ah-empty' }, t('chart.empty'));
@@ -802,7 +815,7 @@ window.__ModuleLoader__.load({
         viewBox: `0 0 ${width} ${height}`,
         role: 'img',
         'aria-label': t('chart.hint'),
-        style: { ...colorVars(config), width: '100%', maxWidth: `${width}px`, height: 'auto' },
+        style: { ...colorVars(config), width: '100%', maxWidth: wide ? '100%' : `${width}px`, height: 'auto' },
       }, children, nodes);
     }
 
@@ -1110,7 +1123,17 @@ window.__ModuleLoader__.load({
               h(Check, { checked: config.showMonthLabels, onChange: (value) => update({ showMonthLabels: value }), label: t('controls.monthLabels') }),
               h(Check, { checked: config.showWeekdayLabels, onChange: (value) => update({ showWeekdayLabels: value }), label: t('controls.weekdayLabels') }),
               h(Check, { checked: config.showLegend, onChange: (value) => update({ showLegend: value }), label: t('controls.legend') }),
+              h(Check, { checked: config.showSidebar, onChange: (value) => update({ showSidebar: value }), label: t('controls.placeSidebar') }),
               h(Check, { checked: config.showDock, onChange: (value) => update({ showDock: value }), label: t('controls.dock') })))),
+          config.showSidebar ? h(Row, { label: t('controls.sidebarWeeks') },
+            h(Range, {
+              value: config.sidebarWeeks,
+              min: 7,
+              max: 52,
+              step: 1,
+              onChange: (sidebarWeeks) => update({ sidebarWeeks }),
+              label: t('controls.sidebarWeeks'),
+            })) : null,
       );
     }
 
@@ -1118,7 +1141,7 @@ window.__ModuleLoader__.load({
     /* Page                                                                */
     /* ------------------------------------------------------------------ */
 
-    function ActivityPage() {
+    function ActivityPage({ wide }) {
       useLocale();
       const [config, update, reset] = useSettings();
       const { data, error, loading } = useStats();
@@ -1155,7 +1178,7 @@ window.__ModuleLoader__.load({
         ? `${formatDate(hover.date, locale)} · ${formatValue(config.metric, metricValue(hover, config.metric), locale)}`
         : '';
 
-      return h('div', { className: 'ah-page' },
+      return h('div', { className: wide ? 'ah-page ah-page--main' : 'ah-page' },
         h('div', { className: 'ah-head' },
           h('h2', { className: 'ah-title' }, t('title')),
           h('p', { className: 'ah-intro' }, t('intro'))),
@@ -1178,7 +1201,7 @@ window.__ModuleLoader__.load({
             : loading && days.length === 0
               ? h('p', { className: 'ah-empty' }, t('chart.scanningUnknown'))
               : h('div', { className: 'ah-chart' },
-                h(Chart, { days, config, levelOf, onHover: setHover })),
+                h(Chart, { days, config, levelOf, onHover: setHover, wide })),
           error ? null : h('div', { className: 'ah-readout' }, readout),
           config.showLegend ? h(Legend, { config }) : null,
           h('p', { className: 'ah-hint' }, t('chart.hint'))),
@@ -1232,6 +1255,112 @@ window.__ModuleLoader__.load({
           style: colorVars(config),
         }, nodes),
         h('span', { className: 'ah-dock-total' }, t('dock.summary', { n: activeDays })));
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Sidebar widget, panel icon, and main page                          */
+    /* ------------------------------------------------------------------ */
+
+    function openActivityPanel() {
+      try {
+        runtime.ctx?.layout?.selectPanel('activity');
+      } catch {
+        /* the layout service is optional in a stripped shell */
+      }
+    }
+
+    function ActivityGlyph({ size = 16 }) {
+      const values = [
+        1, 0, 2, 1, 0,
+        0, 2, 3, 1, 1,
+        1, 1, 0, 2, 3,
+        0, 2, 1, 0, 2,
+        1, 0, 2, 1, 0,
+      ];
+      const unit = 16 / 5;
+      return h('svg', {
+        width: size,
+        height: size,
+        viewBox: '0 0 16 16',
+        'aria-hidden': true,
+        style: { display: 'block' },
+      }, values.map((value, index) => h('rect', {
+        key: index,
+        x: (index % 5) * unit + 0.3,
+        y: Math.floor(index / 5) * unit + 0.3,
+        width: unit - 0.7,
+        height: unit - 0.7,
+        rx: 0.7,
+        fill: 'currentColor',
+        opacity: value === 0 ? 0.18 : 0.2 + value * 0.26,
+      })));
+    }
+
+    function SidebarActivity({ wide }) {
+      useLocale();
+      const [config] = useSettings();
+      const { data } = useStats();
+      if (!wide || !config.showSidebar) return null;
+      const days = data?.days ?? [];
+      const weeksCount = clamp(config.sidebarWeeks, 7, 52);
+      const columns = Math.max(1, Math.min(weeksCount, Math.max(1, Math.floor(days.length / 7))));
+      const values = days.map((day) => metricValue(day, config.metric));
+      const levelOf = buildLevels(values, config.intensity);
+      const activeDays = values.slice(-columns * 7).filter((value) => value > 0).length;
+      let grid = null;
+      if (days.length > 0) {
+        const cell = 6;
+        const gap = 2;
+        const { weeks } = gridWeeks(days, config.weekStart, columns);
+        const width = weeks.length * (cell + gap) - gap;
+        const height = 7 * (cell + gap) - gap;
+        const nodes = [];
+        weeks.forEach((week, column) => {
+          week.forEach((day, row) => {
+            if (!day) return;
+            const value = metricValue(day, config.metric);
+            nodes.push(h('g', { key: day.date },
+              shapeElement(config.shape, column * (cell + gap), row * (cell + gap), cell, config.customPath,
+                `var(--ah-c${levelOf(value)})`, {}),
+              h('title', null, t('chart.cellTitle', {
+                date: formatDate(day.date, runtime.localeId),
+                value: formatValue(config.metric, value, runtime.localeId),
+              }))));
+          });
+        });
+        grid = h('svg', {
+          width: '100%',
+          viewBox: `0 0 ${width} ${height}`,
+          role: 'img',
+          'aria-label': t('dock.summary', { n: activeDays }),
+          style: { ...colorVars(config), display: 'block', height: 'auto' },
+        }, nodes);
+      }
+
+      const label = days.length > 0 ? t('dock.summary', { n: activeDays }) : t('chart.scanningUnknown');
+      const activate = () => openActivityPanel();
+      return h('div', {
+        className: 'ah-side',
+        role: 'button',
+        tabIndex: 0,
+        'aria-label': `${t('dock.label')}: ${label}`,
+        title: t('sidebar.open'),
+        onClick: activate,
+        onKeyDown: (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            activate();
+          }
+        },
+      },
+      h('div', { className: 'ah-side-head' },
+        h('span', { className: 'ah-side-title' }, t('dock.label')),
+        h('span', { className: 'ah-side-meta' }, label)),
+      grid);
+    }
+
+    function ActivityMain() {
+      return h('div', { className: 'ah-main' }, h(ActivityPage, { wide: true }));
     }
 
     /* ------------------------------------------------------------------ */
@@ -1292,6 +1421,16 @@ window.__ModuleLoader__.load({
 .ah-text-btn{border:1px solid var(--dsw-alias-border-l1);border-radius:7px;padding:3px 10px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;line-height:18px;cursor:pointer;white-space:nowrap}
 .ah-text-btn:hover{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2)}
 .ah-text-btn:disabled{opacity:.5;cursor:default}
+.ah-side{box-sizing:border-box;display:flex;flex:1 1 0;flex-direction:column;gap:6px;min-width:0;margin:0 0 2px;padding:8px 10px 9px;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:inherit;text-align:left;cursor:pointer;user-select:none}
+.ah-side:hover{background:var(--dsw-alias-bg-layer-2)}
+.ah-side:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}
+.ah-side-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
+.ah-side-title{font-size:12px;font-weight:600;line-height:16px;white-space:nowrap}
+.ah-side-meta{font-size:10px;line-height:14px;color:var(--dsw-alias-label-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ah-side svg{display:block;width:100%;height:auto}
+.ah-main{box-sizing:border-box;width:100%;height:100%;overflow-y:auto;padding:28px 32px 40px;background:transparent}
+.ah-page--main{max-width:900px;margin:0 auto}
+.ah-page--main .ah-chip{min-width:120px}
 .ah-dock{display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 2px 0;font-size:11px;line-height:16px;color:var(--dsw-alias-label-secondary);user-select:none}
 .ah-dock svg{display:block;flex:none}
 .ah-dock-label{font-weight:500}
@@ -1348,8 +1487,28 @@ window.__ModuleLoader__.load({
         id: 'activity-heatmap-dock',
         order: 20,
       }, ActivityDock));
+
+      ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
+        name: 'sidebar.footer.action',
+        id: 'activity-heatmap-sidebar',
+        order: 0,
+      }, SidebarActivity));
+
+      ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+        name: 'sidebar.panellist',
+        id: 'activity',
+        order: -10,
+        label: () => runtime.t('nav'),
+        locale: NS,
+      }, ActivityGlyph));
+
+      ctx.slots.inject('main', () => ctx.slots.register({
+        name: 'main',
+        key: 'activity',
+        locale: NS,
+      }, ActivityMain));
     }
 
-    return { apply, inject: ['slots', 'locale'] };
+    return { apply, inject: ['slots', 'locale', 'layout'] };
   },
 });

@@ -46,7 +46,7 @@ Confirm the settings section exists:
 }
 ```
 
-Expect an occupant with `"id": "activity"` and `"active": true`.
+Expect occupants with `"id": "activity"` and `"active": true` in `settings.section`, and with `"id": "activity"` in `sidebar.panellist`; also expect `"id": "activity-heatmap-sidebar"` in `sidebar.footer.action`.
 
 Optionally confirm the Host route answers counts (no session content):
 
@@ -60,8 +60,8 @@ Tell the user:
 
 - the bundle name and version that installed,
 - whether a restart is required,
-- that the page is **Settings → Activity**,
-- that a compact strip appears under the composer and can be turned off in the same page.
+- that the full page is **Settings → Activity**, also reachable from the sidebar **Activity** row above Workspaces and the sidebar widget above Settings,
+- that the composer strip is optional and off by default.
 
 Do not describe the plugin as "installed" before `application` is `applied` and the `activity` slot is active. If verification fails, report the exact failure and stop.
 
